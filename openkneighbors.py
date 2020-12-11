@@ -1,8 +1,10 @@
 from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
 
 class KNeighborsClassifierOpenSet:
     
     classifier = None
+    threshold = 0.6
     
     def __init__(self, n_neighbors_os=5, weights_os='uniform', algorithm_os='auto', leaf_size_os=30, p_os=2, metric_os='minkowski', metric_params_os=None, n_jobs_os=None):
         
@@ -10,12 +12,28 @@ class KNeighborsClassifierOpenSet:
         
     def fit(self, X, y):
         self.classifier.fit(X,y)
-    
+        
     def predict(self, X):
-        return self.classifier.predict(X)
+            return self.classifier.predict(X)               
+    
+    def predict_open(self, X):
+        probs = self.classifier.predict_proba(X)
+        result = np.argmax(probs, axis=1)
+        for i in range(probs.shape[0]):
+            if np.max(probs[i,:]) < self.threshold:
+                result[i] = -1
+        return result        
     
     def score(self, X, y):
         return self.classifier.score(X,y)
     
+    def score_open_set(self, X, y):
+        predictions = self.predict(X)
+        is_correct = (predictions == y)
+        return np.count_nonzero(is_correct)/X.shape[0]
+    
     def predict_proba(self, X):
         return self.classifier.predict_proba(X)
+    
+    def set_threshold(self, trsh):
+        self.threshold = trsh
