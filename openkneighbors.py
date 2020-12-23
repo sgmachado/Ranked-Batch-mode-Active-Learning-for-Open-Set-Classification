@@ -1,4 +1,5 @@
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import f1_score
 import numpy as np
 
 class KNeighborsClassifierOpenSet:
@@ -27,10 +28,18 @@ class KNeighborsClassifierOpenSet:
     def score(self, X, y):
         return self.classifier.score(X,y)
     
-    def score_open_set(self, X, y):
-        predictions = self.predict(X)
+    def score_open(self, X, y):
+        predictions = self.predict_open(X)
         is_correct = (predictions == y)
         return np.count_nonzero(is_correct)/X.shape[0]
+    
+    def f1_score(self, X, y):
+        predictions = self.predict(X)
+        return f1_score(y, predictions, average='micro')
+    
+    def f1_score_open(self, X, y):
+        predictions = self.predict_open(X)
+        return f1_score(y, predictions, average='micro')    
     
     def predict_proba(self, X):
         return self.classifier.predict_proba(X)
